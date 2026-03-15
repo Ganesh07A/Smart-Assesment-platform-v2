@@ -1,0 +1,6 @@
+
+> @repo/shared@0.0.0 typecheck D:\MEGA PROJECTS\smart-assesment-platform-v1\packages\shared
+> tsc --noEmit
+
+src/schemas/index.ts(78,50): error TS2339: Property 'partial' does not exist on type 'ZodEffects<ZodObject<{ title: ZodString; description: ZodDefault<ZodOptional<ZodString>>; durationMinutes: ZodNumber; passingMarks: ZodNumber; ... 5 more ...; showResultsImmediately: ZodDefault<...>; }, "strip", ZodTypeAny, { ...; }, { ...; }>, { ...; }, { ...; }>'.
+ ELIFECYCLE  Command failed with exit code 2.

@@ -1,0 +1,13 @@
+{
+  "name": "@repo/eslint-config",
+  "version": "0.0.0",
+  "private": true,
+  "license": "ISC",
+  "exports": {
+    "./next": "./next.js",
+    "./base": "./base.js"
+  },
+  "peerDependencies": {
+    "eslint": ">=9"
+  }
+}

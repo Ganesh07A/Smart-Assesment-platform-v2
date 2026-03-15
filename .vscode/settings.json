@@ -1,0 +1,17 @@
+{
+  // Fix: VS Code TypeScript language server cannot follow pnpm workspace symlinks
+  // by default. These settings make it correctly resolve @repo/* packages.
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.preferences.importModuleSpecifier": "non-relative",
+
+  // ESLint — tell it where each workspace package lives
+  "eslint.workingDirectories": [
+    { "pattern": "./apps/*/" },
+    { "pattern": "./packages/*/" }
+  ],
+  "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
+
+  // Format on save (uses whatever formatter is available)
+  "editor.formatOnSave": true
+}
+
