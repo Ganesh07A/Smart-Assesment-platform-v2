@@ -1,0 +1,89 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  TEACHER
+  STUDENT
+}
+
+enum QuestionType {
+  MCQ
+  TEXT
+  CODE
+}
+
+enum AttemptStatus {
+  STARTED
+  SUBMITTED
+  GRADED
+}
+
+model User {
+  id          String       @id @default(uuid())
+  email       String       @unique
+  password    String
+  name        String?
+  role        Role         @default(STUDENT)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  assessments Assessment[] @relation("CreatedBy")
+  attempts    Attempt[]    @relation("StudentAttempts")
+}
+
+model Assessment {
+  id          String     @id @default(uuid())
+  title       String
+  description String?
+  duration    Int?       // in minutes
+  creatorId   String
+  creator     User       @relation("CreatedBy", fields: [creatorId], references: [id])
+  questions   Question[]
+  attempts    Attempt[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Question {
+  id            String       @id @default(uuid())
+  order         Int          @default(0) // Add this to control question sequence
+  text          String
+  type          QuestionType @default(MCQ)
+  options       Json?
+  correctAnswer String?
+  points        Int          @default(1)
+  assessmentId  String
+  assessment    Assessment   @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  responses     Response[]
+}
+
+model Attempt {
+  id           String        @id @default(uuid())
+  studentId    String
+  student      User          @relation("StudentAttempts", fields: [studentId], references: [id])
+  assessmentId String
+  assessment   Assessment    @relation(fields: [assessmentId], references: [id])
+  score        Float?        @default(0)
+  startTime    DateTime      @default(now())
+  endTime      DateTime?
+  status       AttemptStatus @default(STARTED)
+  responses    Response[]
+
+  @@index([studentId, assessmentId]) // Faster lookup for "Has this student done this test?"
+}
+
+model Response {
+  id         String   @id @default(uuid())
+  attemptId  String
+  attempt    Attempt  @relation(fields: [attemptId], references: [id])
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id])
+  answerText String?  // The student's answer
+  marks      Float?
+}
