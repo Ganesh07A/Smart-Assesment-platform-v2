@@ -44,7 +44,7 @@ jobs:
 
       # Force Prisma to generate the TypeScript client BEFORE typechecking
       - name: Generate Prisma Client
-        run: pnpm --filter api dlx prisma generate # Adjust '--filter api' based on where your schema lives
+        run: pnpm --filter api exec prisma generate # Adjust '--filter api' based on where your schema lives
 
       - name: Lint
         run: pnpm lint
