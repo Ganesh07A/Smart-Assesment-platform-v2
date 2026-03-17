@@ -52,7 +52,7 @@ model Assessment {
 
 model Question {
   id            String       @id @default(uuid())
-  order         Int          @default(0) // Add this to control question sequence
+  order         Int          @default(0)
   text          String
   type          QuestionType @default(MCQ)
   options       Json?
@@ -61,29 +61,36 @@ model Question {
   assessmentId  String
   assessment    Assessment   @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
   responses     Response[]
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
 }
 
 model Attempt {
   id           String        @id @default(uuid())
   studentId    String
-  student      User          @relation("StudentAttempts", fields: [studentId], references: [id])
+  student      User          @relation("StudentAttempts", fields: [studentId], references: [id], onDelete: Cascade)
   assessmentId String
-  assessment   Assessment    @relation(fields: [assessmentId], references: [id])
+  assessment   Assessment    @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
   score        Float?        @default(0)
+  tabSwitches  Int           @default(0)
   startTime    DateTime      @default(now())
   endTime      DateTime?
   status       AttemptStatus @default(STARTED)
   responses    Response[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 
-  @@index([studentId, assessmentId]) // Faster lookup for "Has this student done this test?"
+  @@index([studentId, assessmentId])
 }
 
 model Response {
   id         String   @id @default(uuid())
   attemptId  String
-  attempt    Attempt  @relation(fields: [attemptId], references: [id])
+  attempt    Attempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
   questionId String
-  question   Question @relation(fields: [questionId], references: [id])
-  answerText String?  // The student's answer
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  answerText String?
   marks      Float?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
