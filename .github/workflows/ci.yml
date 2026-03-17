@@ -1,5 +1,4 @@
 name: CI
-
 on:
   push:
     branches: [main]
@@ -9,7 +8,12 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
-
+    
+    # Add dummy variables so Next.js and Prisma don't crash during build
+    env:
+      DATABASE_URL: "postgresql://dummy:dummy@localhost:5432/dummy"
+      # NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: "pk_test_dummy" # Add this if you went with Clerk
+      
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -25,8 +29,22 @@ jobs:
           node-version: 20
           cache: 'pnpm'
 
+      # Cache Next.js build output to drastically speed up future CI runs
+      - name: Cache Next.js
+        uses: actions/cache@v4
+        with:
+          path: |
+            apps/web/.next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.yaml') }}-
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      # Force Prisma to generate the TypeScript client BEFORE typechecking
+      - name: Generate Prisma Client
+        run: pnpm --filter api dlx prisma generate # Adjust '--filter api' based on where your schema lives
 
       - name: Lint
         run: pnpm lint
